@@ -1,7 +1,7 @@
 version: '3.2'
 services:
   s3:
-    image: minio/minio:latest
+    image: minio/minio:RELEASE.2021-06-07T21-40-51Z
     container_name: aws-s3
     ports:
       - 9000:9000
@@ -29,6 +29,24 @@ services:
           - ./dbdata:/var/lib/mysql
       networks:
             - A
+  datascience-notebook:
+      image: jupyter:0.0.3
+      volumes:
+          - /Users/maltequast/PycharmProjects/algo/demand-forecasting:/app/
+      ports:
+          - "8888:8888"
+      command: "jupyter notebook --port=8888 --ip=0.0.0.0 --NotebookApp.allow_remote_access=True --allow-root --NotebookApp.token='' --NotebookApp.password=''"
+      user: root
+      environment:
+          NB_USER: docker_worker
+          NB_UID: 1008
+          NB_GID: 1011
+          CHOWN_HOME: 'yes'
+          CHOWN_HOME_OPTS: -R
+      env_file:
+          - jupyter.env
+      networks:
+          - A
   mlflow:
       container_name: tracker_mlflow
       image: tracker_ml
